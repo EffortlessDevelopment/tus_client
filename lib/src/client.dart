@@ -126,6 +126,7 @@ class TusClient {
     Function(double)? onProgress,
     Function()? onComplete,
   }) async {
+    print('AHDKFHDKAFHKDHKFS');
     if (!await resume()) {
       await create();
     }
