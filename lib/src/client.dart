@@ -86,7 +86,7 @@ class TusClient {
 
     final response = await client.post(url, headers: createHeaders);
     print('[Tus Client] URL:$url \n Headers:$createHeaders');
-    print('[Tus Client] Response: ${objectToString(response.body)}');
+    print('[Tus Client] Response: ${response.body}');
 
     if (!(response.statusCode >= 200 && response.statusCode < 300) &&
         response.statusCode != 404) {
@@ -273,12 +273,4 @@ class TusClient {
     }
     return uploadUrl;
   }
-}
-
-String objectToString(String responseBody) {
-  String responseString = json.decode(responseBody);
-  // Using JsonEncoder for spacing
-  JsonEncoder encoder = new JsonEncoder.withIndent('  ');
-  // encode it to string
-  return encoder.convert(responseString);
 }
