@@ -280,5 +280,5 @@ String objectToString(String responseBody) {
   // Using JsonEncoder for spacing
   JsonEncoder encoder = new JsonEncoder.withIndent('  ');
   // encode it to string
-  return encoder.convert(object);
+  return encoder.convert(responseString);
 }
