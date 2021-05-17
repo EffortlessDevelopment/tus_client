@@ -1,4 +1,4 @@
-import 'dart:convert' show base64, utf8;
+import 'dart:convert' show JsonEncoder, base64, json, utf8;
 import 'dart:math' show min;
 import 'dart:typed_data' show Uint8List;
 import 'exceptions.dart';
@@ -85,7 +85,7 @@ class TusClient {
 
     final response = await client.post(url, headers: createHeaders);
     print('[Tus Client] URL:$url \n Headers:$createHeaders');
-    print('[Tus Client] Response: $response');
+    print('[Tus Client] Response: ${objectToString(response)}');
 
     if (!(response.statusCode >= 200 && response.statusCode < 300) &&
         response.statusCode != 404) {
@@ -126,7 +126,6 @@ class TusClient {
     Function(double)? onProgress,
     Function()? onComplete,
   }) async {
-    print('AHDKFHDKAFHKDHKFS');
     if (!await resume()) {
       await create();
     }
@@ -273,4 +272,15 @@ class TusClient {
     }
     return uploadUrl;
   }
+}
+
+String objectToString(Object object) {
+  // Encode your object and then decode your object to Map variable
+  Map jsonMapped = json.decode(json.encode(object));
+
+  // Using JsonEncoder for spacing
+  JsonEncoder encoder = new JsonEncoder.withIndent('  ');
+
+  // encode it to string
+  return encoder.convert(jsonMapped);
 }
