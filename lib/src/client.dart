@@ -84,6 +84,9 @@ class TusClient {
       });
 
     final response = await client.post(url, headers: createHeaders);
+    print('[Tus Client] URL:$url \n Headers:$createHeaders');
+    print('[Tus Client] Response: $response');
+
     if (!(response.statusCode >= 200 && response.statusCode < 300) &&
         response.statusCode != 404) {
       throw ProtocolException(
