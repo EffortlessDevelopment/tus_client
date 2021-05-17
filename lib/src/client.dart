@@ -1,4 +1,5 @@
 import 'dart:convert' show JsonEncoder, base64, json, utf8;
+import 'dart:io';
 import 'dart:math' show min;
 import 'dart:typed_data' show Uint8List;
 import 'exceptions.dart';
@@ -85,7 +86,7 @@ class TusClient {
 
     final response = await client.post(url, headers: createHeaders);
     print('[Tus Client] URL:$url \n Headers:$createHeaders');
-    print('[Tus Client] Response: ${objectToString(response)}');
+    print('[Tus Client] Response: ${objectToString(response.body)}');
 
     if (!(response.statusCode >= 200 && response.statusCode < 300) &&
         response.statusCode != 404) {
@@ -274,10 +275,10 @@ class TusClient {
   }
 }
 
-String objectToString(Object object) {
+String objectToString(String responseBody) {
+  String responseString = json.decode(responseBody);
   // Using JsonEncoder for spacing
   JsonEncoder encoder = new JsonEncoder.withIndent('  ');
-
   // encode it to string
   return encoder.convert(object);
 }
