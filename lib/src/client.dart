@@ -1,4 +1,4 @@
-import 'dart:convert' show base64, json, utf8;
+import 'dart:convert' show base64, utf8;
 import 'dart:math' show min;
 import 'dart:typed_data' show Uint8List;
 import 'exceptions.dart';
@@ -83,8 +83,7 @@ class TusClient {
         "Upload-Length": "$_fileSize",
       });
 
-    final response = await client
-        .post(url, headers: createHeaders, body: {"Resumable": "true"});
+    final response = await client.post(url, headers: createHeaders);
     if (!(response.statusCode >= 200 && response.statusCode < 300) &&
         response.statusCode != 404) {
       throw ProtocolException(
@@ -143,10 +142,12 @@ class TusClient {
           "Upload-Offset": "$_offset",
           "Content-Type": "application/offset+octet-stream"
         });
+      Uint8List _chunckOfIntrest = await _getData();
+      print('[tus client] _chunckOfIntrest: $_chunckOfIntrest');
       _chunkPatchFuture = client.patch(
         _uploadUrl as Uri,
         headers: uploadHeaders,
-        body: await _getData(),
+        body: _chunckOfIntrest,
       );
       final response = await _chunkPatchFuture;
       _chunkPatchFuture = null;
