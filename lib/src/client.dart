@@ -83,16 +83,16 @@ class TusClient {
         "Upload-Length": "$_fileSize",
       });
 
-    final response =
-        await client.post(url, headers: createHeaders).then((dynamic response) {
-      if (response.headers?.location != null) {
-        _uploadUrl = response.headers.location;
-        print('[Tus Client] URL:$url \n Headers:$createHeaders');
-        print('[Tus Client] Headers: ${response.headers}');
-        print('[Tus Client] Response: ${response.body}');
-        print('[Tus Client] Status Code: ${response.statusCode}');
-      }
-    });
+    final response = await client.post(url, headers: createHeaders);
+
+    if (response.headers.containsKey("location")) {
+      final location = response.headers["location"];
+      print('[Tus Client] Location From Headers:$location');
+    }
+    print('[Tus Client] URL:$url');
+    print('[Tus Client] Headers: ${response.headers}');
+    print('[Tus Client] Response: ${response.body}');
+    print('[Tus Client] Status Code: ${response.statusCode}');
 
     if (response.statusCode != 201) {
       throw ProtocolException(
