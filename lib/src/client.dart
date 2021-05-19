@@ -1,5 +1,4 @@
-import 'dart:convert' show JsonEncoder, base64, json, utf8;
-import 'dart:io';
+import 'dart:convert' show base64, utf8;
 import 'dart:math' show min;
 import 'dart:typed_data' show Uint8List;
 import 'exceptions.dart';
@@ -84,14 +83,18 @@ class TusClient {
         "Upload-Length": "$_fileSize",
       });
 
-    final response = await client.post(url, headers: createHeaders);
-    print('[Tus Client] URL:$url \n Headers:$createHeaders');
-    print('[Tus Client] Headers: ${response.headers}');
-    print('[Tus Client] Response: ${response.body}');
-    print('[Tus Client] Status Code: ${response.statusCode}');
+    final response =
+        await client.post(url, headers: createHeaders).then((dynamic response) {
+      if (response.headers?.location != null) {
+        _uploadUrl = response.headers.location;
+        print('[Tus Client] URL:$url \n Headers:$createHeaders');
+        print('[Tus Client] Headers: ${response.headers}');
+        print('[Tus Client] Response: ${response.body}');
+        print('[Tus Client] Status Code: ${response.statusCode}');
+      }
+    });
 
-    if (!(response.statusCode >= 200 && response.statusCode < 300) &&
-        response.statusCode != 404) {
+    if (response.statusCode != 201) {
       throw ProtocolException(
           "unexpected status code (${response.statusCode}) while creating upload");
     }
@@ -148,13 +151,19 @@ class TusClient {
           "Upload-Offset": "$_offset",
           "Content-Type": "application/offset+octet-stream"
         });
+      Object newChunk = await _getData();
       _chunkPatchFuture = client.patch(
         _uploadUrl as Uri,
         headers: uploadHeaders,
-        body: await _getData(),
+        body: newChunk,
       );
       final response = await _chunkPatchFuture;
       _chunkPatchFuture = null;
+
+      print('[Tus Client][Patch] URL:$url \n Headers:$uploadHeaders');
+      print('[Tus Client][Patch] NewChunk: \n${response.headers}');
+      print('[Tus Client][Patch] Response: ${response.body}');
+      print('[Tus Client][Patch] Status Code: ${response.statusCode}');
 
       // check if correctly uploaded
       if (!(response.statusCode >= 200 && response.statusCode < 300)) {
@@ -199,7 +208,7 @@ class TusClient {
 
   /// Override this method to customize creating file fingerprint
   String? generateFingerprint() {
-    return file.path.replaceAll(RegExp(r"\W+"), '.');
+    return file.path?.replaceAll(RegExp(r"\W+"), '.');
   }
 
   /// Override this to customize creating 'Upload-Metadata'
@@ -207,7 +216,10 @@ class TusClient {
     final meta = Map<String, String>.from(metadata ?? {});
 
     if (!meta.containsKey("filename")) {
-      meta["filename"] = p.basename(file.path);
+      meta["filename"] = p.basename((XFile file) {
+        String filename = file.path!;
+        return filename;
+      }(file));
     }
 
     return meta.entries
