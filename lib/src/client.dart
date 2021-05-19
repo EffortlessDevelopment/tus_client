@@ -152,7 +152,7 @@ class TusClient {
           "Content-Type": "application/offset+octet-stream"
         });
       Object newChunk = await _getData();
-      _chunkPatchFuture = client.patch(
+      _chunkPatchFuture = client.post(
         _uploadUrl as Uri,
         headers: uploadHeaders,
         body: newChunk,
@@ -161,8 +161,7 @@ class TusClient {
       _chunkPatchFuture = null;
 
       print('[Tus Client][Patch] URL:$url \n Headers:$uploadHeaders');
-      print('[Tus Client][Patch] NewChunk: \n${response.headers}');
-      print('[Tus Client][Patch] Response: ${response.body}');
+      print('[Tus Client][Patch] NewChunk: \n${response.body}');
       print('[Tus Client][Patch] Status Code: ${response.statusCode}');
 
       // check if correctly uploaded
